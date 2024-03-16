@@ -15,6 +15,13 @@ const (
 	maximumFilmDescription int = 1000
 	minimalFilmRating      int = 0
 	maximumFilmRating      int = 10
+
+	filmsTable       string = "films"
+	actorsTable      string = "actors"
+	filmsActorsTable string = "films_actors"
+
+	sortByName         string = "name"
+	sortByPresentation string = "presentation"
 )
 
 var (
@@ -44,11 +51,7 @@ func main() {
 		panic(err)
 	}
 	dataBase, err = NewDatabase(dbConfig,
-		TablesNames{
-			Films:       "films",
-			Actors:      "actors",
-			FilmsActors: "films_actors",
-		},
+		TablesNames{Films: filmsTable, Actors: actorsTable, FilmsActors: filmsActorsTable},
 	)
 	if err != nil {
 		fmt.Print(err.Error())

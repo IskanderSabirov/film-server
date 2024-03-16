@@ -4,13 +4,9 @@ import (
 	"database/sql"
 	_ "embed"
 	"fmt"
-)
-
-type Sex = bool
-
-const (
-	Male   Sex = true
-	Female Sex = false
+	"sort"
+	_ "sort"
+	"time"
 )
 
 type LocalStorage interface {
@@ -23,7 +19,7 @@ type LocalStorage interface {
 	changeFilm() error
 	changeActor() error
 
-	getFilms() ([]Film, error)
+	getFilms(sort string) ([]Film, error)
 	getActors() (map[Actor][]Film, error)
 
 	findFilmsByName() ([]Film, error)
@@ -73,14 +69,23 @@ func NewDatabase(cfg DBConfig, names TablesNames) (*DataBase, error) {
 }
 
 func (d *DataBase) addFilm(film Film) error {
-	query := fmt.Sprintf("INSERT INTO %s (film_name, description, presentation, rating) VALUES ($1, $2, $3, $4)", d.Names.Films)
+	query := fmt.Sprintf(
+		`INSERT INTO %s (name, description, presentation, rating) 
+				VALUES ($1, $2, $3, $4) 
+				ON CONFLICT (name, presentation) DO NOTHING`,
+		d.Names.Films)
 	_, err := d.DB.Exec(query, film.name, film.description, film.presentation, film.rating)
 	return err
 }
 
 func (d *DataBase) addActor(actor Actor) error {
-	query := fmt.Sprintf("INSERT INTO %s (actor_name, sex, born) VALUES ($1, $2, $3)", d.Names.Actors)
-	_, err := d.DB.Exec(query, actor.name, actor.sex, actor.name)
+	query := fmt.Sprintf(
+		`INSERT INTO %s (name, sex, born) 
+				VALUES ($1, $2, $3)
+				ON CONFLICT (name, sex, born) DO NOTHING`,
+		d.Names.Actors,
+	)
+	_, err := d.DB.Exec(query, actor.name, actor.sex, actor.born)
 	return err
 }
 
@@ -140,14 +145,75 @@ func (d *DataBase) changeActor() error {
 	panic("implement me")
 }
 
-func (d *DataBase) getFilms() ([]Film, error) {
-	//TODO implement me
-	panic("implement me")
+func (d *DataBase) getFilms(sortParam string) ([]Film, error) {
+	query := fmt.Sprintf(`SELECT * FROM %s`, d.Names.Films)
+	rows, err := d.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	var films []Film
+	var name, description string
+	var rating int
+	var presentation time.Time
+
+	for rows.Next() {
+		if err := rows.Scan(&name, &description, &presentation, rating); err != nil {
+			return nil, err
+		}
+		film := Film{name, description, presentation, rating}
+		films = append(films, film)
+	}
+
+	switch sortParam {
+	case sortByName:
+		sort.Slice(films, func(i, j int) bool {
+			return films[i].name < films[j].name
+		})
+		break
+	case sortByPresentation:
+		sort.Slice(films, func(i, j int) bool {
+			return films[i].presentation.Before(films[j].presentation)
+		})
+		break
+	default:
+		sort.Slice(films, func(i, j int) bool {
+			return films[i].rating < films[j].rating
+		})
+	}
+
+	return films, nil
 }
 
 func (d *DataBase) getActors() (map[Actor][]Film, error) {
-	//TODO implement me
-	panic("implement me")
+	query := `SELECT actors.name, actors.sex, actors.born, films.name, films.description, films.presentation, films.rating
+ 			  FROM actors
+          	  LEFT JOIN films_actors ON actors.id = films_actors.actor
+          	  LEFT JOIN films ON films_actors.film = films.id;`
+
+	rows, err := d.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	actorsMap := make(map[Actor][]Film)
+
+	var actorName, filmName, filmDescription string
+	var actorSex bool
+	var filmRating int
+	var actorBorn, filmPresentation time.Time
+
+	for rows.Next() {
+		if err := rows.Scan(&actorName, &actorSex, &actorBorn, &filmName, &filmDescription, &filmPresentation, &filmRating); err != nil {
+			return nil, err
+		}
+		actor := Actor{actorName, actorSex, actorBorn}
+		film := Film{filmName, filmDescription, filmPresentation, filmRating}
+		currentFilms, _ := actorsMap[actor]
+		currentFilms = append(currentFilms, film)
+		actorsMap[actor] = currentFilms
+	}
+
+	return actorsMap, nil
 }
 
 func (d *DataBase) findFilmsByName() ([]Film, error) {
