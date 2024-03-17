@@ -122,10 +122,10 @@ func main() {
 	http.HandleFunc("/admin/addActorsToFilm", adminAuthenticate(addActorsToFilmHandler))
 
 	// user
-	http.HandleFunc("/user/getFilms", adminAuthenticate(getFilmsHandler))
-	http.HandleFunc("/user/getActors", adminAuthenticate(getActorsHandler))
-	http.HandleFunc("/user/findFilmsBySubstring", adminAuthenticate(findFilmByNameHandler))
-	http.HandleFunc("/user/findFilmsByActor", adminAuthenticate(findFilmByActorHandler))
+	http.HandleFunc("/user/getFilms", userAuthenticate(getFilmsHandler))
+	http.HandleFunc("/user/getActors", userAuthenticate(getActorsHandler))
+	http.HandleFunc("/user/findFilmsBySubstring", userAuthenticate(findFilmByNameHandler))
+	http.HandleFunc("/user/findFilmsByActor", userAuthenticate(findFilmByActorHandler))
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
