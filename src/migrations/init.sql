@@ -28,3 +28,16 @@ CREATE TABLE IF NOT EXISTS films_actors
 
     CONSTRAINT key_films_actors UNIQUE (actor, film)
 );
+
+CREATE TABLE IF NOT EXISTS users
+(
+    login    TEXT PRIMARY KEY,
+    password TEXT
+);
+
+CREATE TABLE IF NOT EXISTS admins
+(
+    login    TEXT PRIMARY KEY,
+    password TEXT
+);
+

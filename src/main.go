@@ -4,6 +4,8 @@ import (
 	_ "embed"
 	_ "github.com/jackc/pgx/v4/stdlib"
 	"gopkg.in/yaml.v2"
+	"log"
+	"net/http"
 	"time"
 )
 
@@ -18,6 +20,8 @@ const (
 	filmsTable       string = "films"
 	actorsTable      string = "actors"
 	filmsActorsTable string = "films_actors"
+	usersTable       string = "users"
+	adminsTable      string = "admins"
 
 	sortByName         string = "name"
 	sortByPresentation string = "presentation"
@@ -65,22 +69,65 @@ type changedFilm struct {
 	newRating           int       `json:"newRating"`
 }
 
+type sortFilms struct {
+	sort string `json:"sort"`
+}
+
+type findSubstring struct {
+	substring string `json:"substring"`
+}
+type addActorsToFilm struct {
+	film   Film    `json:"film"`
+	actors []Actor `json:"actors"`
+}
+
 //go:embed db_config.yml
 var rawDBConfig []byte
 
 func main() {
+
 	var dbConfig DBConfig
 	var err error
 	if err := yaml.Unmarshal(rawDBConfig, &dbConfig); err != nil {
 		panic(err)
 	}
 	dataBase, err = NewDatabase(dbConfig,
-		TablesNames{Films: filmsTable, Actors: actorsTable, FilmsActors: filmsActorsTable},
+		TablesNames{
+			Films:       filmsTable,
+			Actors:      actorsTable,
+			FilmsActors: filmsActorsTable,
+			Users:       usersTable,
+			Admins:      adminsTable,
+		},
 	)
 	if err != nil {
 		panic(err)
 	}
 
+	//admin
+	http.HandleFunc("/admin/addActor", adminAuthenticate(addActorHandler))
+	http.HandleFunc("/admin/changeActor", adminAuthenticate(changeActorHandler))
+	http.HandleFunc("/admin/deleteActor", adminAuthenticate(deleteActorHandler))
+
+	http.HandleFunc("/admin/addFilm", adminAuthenticate(addFilmHandler))
+	http.HandleFunc("/admin/changeFilm", adminAuthenticate(changeFilmHandler))
+	http.HandleFunc("/admin/deleteFilm", adminAuthenticate(deleteFilmHandler))
+
+	http.HandleFunc("/admin/getFilms", adminAuthenticate(getFilmsHandler))
+	http.HandleFunc("/admin/getActors", adminAuthenticate(getActorsHandler))
+	http.HandleFunc("/admin/findFilmsByActor", adminAuthenticate(findFilmByActorHandler))
+	http.HandleFunc("/admin/findFilmsBySubstring", adminAuthenticate(findFilmByNameHandler))
+
+	// нужна для добавления актеров в актерский состав фильма, если не было фильма, то сначала добавляет
+	http.HandleFunc("/admin/addActorsToFilm", adminAuthenticate(addActorsToFilmHandler))
+
+	// user
+	http.HandleFunc("/user/getFilms", adminAuthenticate(getFilmsHandler))
+	http.HandleFunc("/user/getActors", adminAuthenticate(getActorsHandler))
+	http.HandleFunc("/user/findFilmsBySubstring", adminAuthenticate(findFilmByNameHandler))
+	http.HandleFunc("/user/findFilmsByActor", adminAuthenticate(findFilmByActorHandler))
+
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
 func checkFilmName(filmName string) bool {

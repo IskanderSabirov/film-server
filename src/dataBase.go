@@ -26,6 +26,9 @@ type LocalStorage interface {
 	findFilmsByActor(nameFragment string) ([]Film, error)
 
 	addActorsToFilm(actors []Actor, film Film) error
+
+	getUserPassword(login string) (string, error)
+	getAdminPassword(login string) (string, error)
 }
 
 type DataBase struct {
@@ -45,6 +48,8 @@ type TablesNames struct {
 	Films       string
 	Actors      string
 	FilmsActors string
+	Users       string
+	Admins      string
 }
 
 //go:embed migrations/init.sql
@@ -401,4 +406,37 @@ func (d *DataBase) getFilmID(film Film) (int64, error) {
 	}
 
 	return id, err
+}
+
+func (d *DataBase) getUserPassword(login string) (string, error) {
+	query := fmt.Sprintf(`SELECT password FROM %s WHERE login = $1;`, d.Names.Users)
+	row, err := d.DB.Query(query, login)
+	if err != nil {
+		return "", nil
+	}
+
+	var password string
+
+	if err := row.Scan(&password); err != nil {
+		return "", err
+	}
+
+	return password, nil
+
+}
+
+func (d *DataBase) getAdminPassword(login string) (string, error) {
+	query := fmt.Sprintf(`SELECT password FROM %s WHERE login = $1;`, d.Names.Admins)
+	row, err := d.DB.Query(query, login)
+	if err != nil {
+		return "", nil
+	}
+
+	var password string
+
+	if err := row.Scan(&password); err != nil {
+		return "", err
+	}
+
+	return password, nil
 }
