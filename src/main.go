@@ -2,7 +2,6 @@ package main
 
 import (
 	_ "embed"
-	"fmt"
 	_ "github.com/jackc/pgx/v4/stdlib"
 	"gopkg.in/yaml.v2"
 	"time"
@@ -41,6 +40,31 @@ type Film struct {
 	rating       int       `json:"rating"`
 }
 
+type changedActor struct {
+	prevName    string    `json:"prevName"`
+	prevBorn    time.Time `json:"prevBorn"`
+	prevSex     bool      `json:"prevSex"`
+	nameChanged bool      `json:"nameChanged"`
+	newName     string    `json:"newName"`
+	sexChanged  bool      `json:"sexChanged"`
+	newSex      bool      `json:"newSex"`
+	bornChanged bool      `json:"bornChanged"`
+	newBorn     time.Time `json:"newBorn"`
+}
+
+type changedFilm struct {
+	prevName            string    `json:"prevName"`
+	prevPresentation    time.Time `json:"prevPresentation"`
+	nameChanged         bool      `json:"nameChanged"`
+	newName             string    `json:"newName"`
+	descriptionChanged  bool      `json:"descriptionChanged"`
+	newDescription      bool      `json:"newDescription"`
+	presentationChanged bool      `json:"presentationChanged"`
+	newPresentation     time.Time `json:"newPresentation"`
+	ratingChanged       bool      `json:"ratingChanged"`
+	newRating           int       `json:"newRating"`
+}
+
 //go:embed db_config.yml
 var rawDBConfig []byte
 
@@ -54,8 +78,9 @@ func main() {
 		TablesNames{Films: filmsTable, Actors: actorsTable, FilmsActors: filmsActorsTable},
 	)
 	if err != nil {
-		fmt.Print(err.Error())
+		panic(err)
 	}
+
 }
 
 func checkFilmName(filmName string) bool {
@@ -68,4 +93,16 @@ func checkFilmRating(rating int) bool {
 
 func checkFilmDescription(description string) bool {
 	return len(description) >= minimalFilmDescription && len(description) <= maximumFilmDescription
+}
+
+func checkFilm(film Film) bool {
+	return checkFilmName(film.name) && checkFilmDescription(film.description) && checkFilmRating(film.rating)
+}
+
+func checkChangedFilm(film changedFilm) bool {
+	// по сути каждая скобка это -> (булево следсвтие, если первое верно, то должно быть и второе)
+	return (!film.ratingChanged || checkFilmRating(film.newRating)) &&
+		(!film.nameChanged || checkFilmName(film.newName)) &&
+		(!film.ratingChanged || checkFilmRating(film.newRating)) &&
+		checkFilmName(film.prevName)
 }
