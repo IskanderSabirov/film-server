@@ -32,53 +32,53 @@ var (
 )
 
 type Actor struct {
-	name string    `json:"name"`
-	sex  bool      `json:"sex"`
-	born time.Time `json:"born"`
+	Name string    `json:"name"`
+	Sex  bool      `json:"sex"`
+	Born time.Time `json:"born"`
 }
 
 type Film struct {
-	name         string    `json:"name"`
-	description  string    `json:"description"`
-	presentation time.Time `json:"presentation"`
-	rating       int       `json:"rating"`
+	Name         string    `json:"name"`
+	Description  string    `json:"description"`
+	Presentation time.Time `json:"presentation"`
+	Rating       int       `json:"rating"`
 }
 
 type changedActor struct {
-	prevName    string    `json:"prevName"`
-	prevBorn    time.Time `json:"prevBorn"`
-	prevSex     bool      `json:"prevSex"`
-	nameChanged bool      `json:"nameChanged"`
-	newName     string    `json:"newName"`
-	sexChanged  bool      `json:"sexChanged"`
-	newSex      bool      `json:"newSex"`
-	bornChanged bool      `json:"bornChanged"`
-	newBorn     time.Time `json:"newBorn"`
+	PrevName    string    `json:"prevName"`
+	PrevBorn    time.Time `json:"prevBorn"`
+	PrevSex     bool      `json:"prevSex"`
+	NameChanged bool      `json:"nameChanged"`
+	NewName     string    `json:"newName"`
+	SexChanged  bool      `json:"sexChanged"`
+	NewSex      bool      `json:"newSex"`
+	BornChanged bool      `json:"bornChanged"`
+	NewBorn     time.Time `json:"newBorn"`
 }
 
 type changedFilm struct {
-	prevName            string    `json:"prevName"`
-	prevPresentation    time.Time `json:"prevPresentation"`
-	nameChanged         bool      `json:"nameChanged"`
-	newName             string    `json:"newName"`
-	descriptionChanged  bool      `json:"descriptionChanged"`
-	newDescription      bool      `json:"newDescription"`
-	presentationChanged bool      `json:"presentationChanged"`
-	newPresentation     time.Time `json:"newPresentation"`
-	ratingChanged       bool      `json:"ratingChanged"`
-	newRating           int       `json:"newRating"`
+	PrevName            string    `json:"prevName"`
+	PrevPresentation    time.Time `json:"prevPresentation"`
+	NameChanged         bool      `json:"nameChanged"`
+	NewName             string    `json:"newName"`
+	DescriptionChanged  bool      `json:"descriptionChanged"`
+	NewDescription      bool      `json:"newDescription"`
+	PresentationChanged bool      `json:"presentationChanged"`
+	NewPresentation     time.Time `json:"newPresentation"`
+	RatingChanged       bool      `json:"ratingChanged"`
+	NewRating           int       `json:"newRating"`
 }
 
 type sortFilms struct {
-	sort string `json:"sort"`
+	Sort string `json:"sort"`
 }
 
 type findSubstring struct {
-	substring string `json:"substring"`
+	Substring string `json:"substring"`
 }
 type addActorsToFilm struct {
-	film   Film    `json:"film"`
-	actors []Actor `json:"actors"`
+	Film   Film    `json:"film"`
+	Actors []Actor `json:"actors"`
 }
 
 //go:embed db_config.yml
@@ -143,13 +143,13 @@ func checkFilmDescription(description string) bool {
 }
 
 func checkFilm(film Film) bool {
-	return checkFilmName(film.name) && checkFilmDescription(film.description) && checkFilmRating(film.rating)
+	return checkFilmName(film.Name) && checkFilmDescription(film.Description) && checkFilmRating(film.Rating)
 }
 
 func checkChangedFilm(film changedFilm) bool {
 	// по сути каждая скобка это -> (булево следсвтие, если первое верно, то должно быть и второе)
-	return (!film.ratingChanged || checkFilmRating(film.newRating)) &&
-		(!film.nameChanged || checkFilmName(film.newName)) &&
-		(!film.ratingChanged || checkFilmRating(film.newRating)) &&
-		checkFilmName(film.prevName)
+	return (!film.RatingChanged || checkFilmRating(film.NewRating)) &&
+		(!film.NameChanged || checkFilmName(film.NewName)) &&
+		(!film.RatingChanged || checkFilmRating(film.NewRating)) &&
+		checkFilmName(film.PrevName)
 }

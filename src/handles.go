@@ -269,9 +269,9 @@ func getFilmsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("Correct decoding of sort method: %s\n", sortStyle.sort)
+	log.Printf("Correct decoding of sort method: %s\n", sortStyle.Sort)
 
-	films, err := dataBase.getFilms(sortStyle.sort)
+	films, err := dataBase.getFilms(sortStyle.Sort)
 	if err != nil {
 		http.Error(w, "Error in getting films list from data base", http.StatusInternalServerError)
 		return
@@ -310,9 +310,9 @@ func findFilmByNameHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("Correct decoding of substring film`s name: %s\n", substring.substring)
+	log.Printf("Correct decoding of substring film`s name: %s\n", substring.Substring)
 
-	films, err := dataBase.findFilmsByName(substring.substring)
+	films, err := dataBase.findFilmsByName(substring.Substring)
 	if err != nil {
 		http.Error(w, "Error in getting films list from data base by name`s substring", http.StatusInternalServerError)
 		return
@@ -348,9 +348,9 @@ func findFilmByActorHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("Correct decoding of actor`s name substring: %s\n", substring.substring)
+	log.Printf("Correct decoding of actor`s name substring: %s\n", substring.Substring)
 
-	films, err := dataBase.findFilmsByActor(substring.substring)
+	films, err := dataBase.findFilmsByActor(substring.Substring)
 	if err != nil {
 		http.Error(w, "Error in getting films list from data base by actor`s name substring", http.StatusInternalServerError)
 		return
@@ -420,7 +420,7 @@ func addActorsToFilmHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Correct decode of json of actors in film struct %v\n", adding)
 
-	if err := dataBase.addActorsToFilm(adding.actors, adding.film); err != nil {
+	if err := dataBase.addActorsToFilm(adding.Actors, adding.Film); err != nil {
 		http.Error(w, "Error in getting actors list from data base", http.StatusInternalServerError)
 		return
 	}

@@ -83,7 +83,7 @@ func (d *DataBase) addFilm(film Film) (int64, error) {
 				ON CONFLICT (name, presentation) DO NOTHING`,
 		d.Names.Films)
 
-	if _, err := d.DB.Exec(query, film.name, film.description, film.presentation, film.rating); err != nil {
+	if _, err := d.DB.Exec(query, film.Name, film.Description, film.Presentation, film.Rating); err != nil {
 		return -1, err
 	}
 
@@ -97,7 +97,7 @@ func (d *DataBase) addActor(actor Actor) (int64, error) {
 				ON CONFLICT (name, sex, born) DO NOTHING`,
 		d.Names.Actors,
 	)
-	if _, err := d.DB.Exec(query, actor.name, actor.sex, actor.born); err != nil {
+	if _, err := d.DB.Exec(query, actor.Name, actor.Sex, actor.Born); err != nil {
 		return -1, err
 	}
 
@@ -113,7 +113,7 @@ func (d *DataBase) deleteFilm(film Film) error {
 
 	// удаляем из таблицы фильм
 	query := fmt.Sprintf("DELETE FROM %s WHERE film_name = $1 AND presentation = $2", d.Names.Films)
-	if _, err := d.DB.Exec(query, film.name, film.description); err != nil {
+	if _, err := d.DB.Exec(query, film.Name, film.Description); err != nil {
 		return err
 	}
 
@@ -132,7 +132,7 @@ func (d *DataBase) deleteActor(actor Actor) error {
 
 	// удаляем из таблицы актера
 	query := fmt.Sprintf("DELETE FROM %s WHERE actor_name = $1 AND sex = $2 AND born = $3", d.Names.Actors)
-	if _, err := d.DB.Exec(query, actor.name, actor.sex, actor.born); err != nil {
+	if _, err := d.DB.Exec(query, actor.Name, actor.Sex, actor.Born); err != nil {
 		return err
 	}
 
@@ -144,7 +144,7 @@ func (d *DataBase) deleteActor(actor Actor) error {
 }
 
 func (d *DataBase) changeFilm(film changedFilm) error {
-	filmID, err := d.getFilmID(Film{film.prevName, "", film.prevPresentation, 0})
+	filmID, err := d.getFilmID(Film{film.PrevName, "", film.PrevPresentation, 0})
 	if err != nil {
 		return err
 	}
@@ -153,26 +153,26 @@ func (d *DataBase) changeFilm(film changedFilm) error {
 		 	  SET %s = $1
 		 	  WHERE EXISTS (SELECT 1 FROM %s WHERE id = %d);`
 
-	if film.nameChanged {
-		if _, err := d.DB.Exec(fmt.Sprintf(query, d.Names.Films, "name", d.Names.Films, filmID), film.newName); err != nil {
+	if film.NameChanged {
+		if _, err := d.DB.Exec(fmt.Sprintf(query, d.Names.Films, "name", d.Names.Films, filmID), film.NewName); err != nil {
 			return err
 		}
 	}
 
-	if film.presentationChanged {
-		if _, err := d.DB.Exec(fmt.Sprintf(query, d.Names.Films, "presentation", d.Names.Films, filmID), film.newPresentation); err != nil {
+	if film.PresentationChanged {
+		if _, err := d.DB.Exec(fmt.Sprintf(query, d.Names.Films, "presentation", d.Names.Films, filmID), film.NewPresentation); err != nil {
 			return err
 		}
 	}
 
-	if film.descriptionChanged {
-		if _, err := d.DB.Exec(fmt.Sprintf(query, d.Names.Films, "description", d.Names.Films, filmID), film.newDescription); err != nil {
+	if film.DescriptionChanged {
+		if _, err := d.DB.Exec(fmt.Sprintf(query, d.Names.Films, "description", d.Names.Films, filmID), film.NewDescription); err != nil {
 			return err
 		}
 	}
 
-	if film.ratingChanged {
-		if _, err := d.DB.Exec(fmt.Sprintf(query, d.Names.Films, "rating", d.Names.Films, filmID), film.newRating); err != nil {
+	if film.RatingChanged {
+		if _, err := d.DB.Exec(fmt.Sprintf(query, d.Names.Films, "rating", d.Names.Films, filmID), film.NewRating); err != nil {
 			return err
 		}
 	}
@@ -181,7 +181,7 @@ func (d *DataBase) changeFilm(film changedFilm) error {
 }
 
 func (d *DataBase) changeActor(actor changedActor) error {
-	actorID, err := d.getActorID(Actor{actor.prevName, actor.prevSex, actor.prevBorn})
+	actorID, err := d.getActorID(Actor{actor.PrevName, actor.PrevSex, actor.PrevBorn})
 	if err != nil {
 		return err
 	}
@@ -190,20 +190,20 @@ func (d *DataBase) changeActor(actor changedActor) error {
 		 	  SET %s = $1
 		 	  WHERE EXISTS (SELECT 1 FROM %s WHERE id = %d);`
 
-	if actor.bornChanged {
-		if _, err := d.DB.Exec(fmt.Sprintf(query, d.Names.Actors, "born", d.Names.Actors, actorID), actor.newBorn); err != nil {
+	if actor.BornChanged {
+		if _, err := d.DB.Exec(fmt.Sprintf(query, d.Names.Actors, "born", d.Names.Actors, actorID), actor.NewBorn); err != nil {
 			return err
 		}
 	}
 
-	if actor.sexChanged {
-		if _, err := d.DB.Exec(fmt.Sprintf(query, d.Names.Actors, "sex", d.Names.Actors, actorID), actor.newSex); err != nil {
+	if actor.SexChanged {
+		if _, err := d.DB.Exec(fmt.Sprintf(query, d.Names.Actors, "sex", d.Names.Actors, actorID), actor.NewSex); err != nil {
 			return err
 		}
 	}
 
-	if actor.nameChanged {
-		if _, err := d.DB.Exec(fmt.Sprintf(query, d.Names.Actors, "name", d.Names.Actors, actorID), actor.newName); err != nil {
+	if actor.NameChanged {
+		if _, err := d.DB.Exec(fmt.Sprintf(query, d.Names.Actors, "name", d.Names.Actors, actorID), actor.NewName); err != nil {
 			return err
 		}
 	}
@@ -233,17 +233,17 @@ func (d *DataBase) getFilms(sortParam string) ([]Film, error) {
 	switch sortParam {
 	case sortByName:
 		sort.Slice(films, func(i, j int) bool {
-			return films[i].name < films[j].name
+			return films[i].Name < films[j].Name
 		})
 		break
 	case sortByPresentation:
 		sort.Slice(films, func(i, j int) bool {
-			return films[i].presentation.Before(films[j].presentation)
+			return films[i].Presentation.Before(films[j].Presentation)
 		})
 		break
 	default:
 		sort.Slice(films, func(i, j int) bool {
-			return films[i].rating < films[j].rating
+			return films[i].Rating < films[j].Rating
 		})
 	}
 
@@ -382,7 +382,7 @@ func (d *DataBase) addActorsToFilm(actors []Actor, film Film) error {
 
 func (d *DataBase) getActorID(actor Actor) (int64, error) {
 	query := fmt.Sprintf(`SELECT id FROM %s WHERE name=$1, sex=$2, born=$3`, d.Names.Actors)
-	row, err := d.DB.Query(query, actor.name, actor.sex, actor.born)
+	row, err := d.DB.Query(query, actor.Name, actor.Sex, actor.Born)
 
 	var id int64
 
@@ -399,7 +399,7 @@ func (d *DataBase) getActorID(actor Actor) (int64, error) {
 
 func (d *DataBase) getFilmID(film Film) (int64, error) {
 	query := fmt.Sprintf(`SELECT id FROM %s WHERE name=$1, presentation=$2;`, d.Names.Films)
-	row, err := d.DB.Query(query, film.name, film.presentation)
+	row, err := d.DB.Query(query, film.Name, film.Presentation)
 
 	var id int64
 
