@@ -1,4 +1,4 @@
--- DROP TABLE films, actors, films_actors;
+-- DROP TABLE films, actors, films_actors, users, admins;
 
 CREATE TABLE IF NOT EXISTS films
 (
@@ -41,3 +41,9 @@ CREATE TABLE IF NOT EXISTS admins
     password TEXT
 );
 
+-- для пользования и чтобы ручками не вбивать, как написано в ТЗ
+INSERT INTO users
+VALUES ('user', 'user') ON CONFLICT DO NOTHING ;
+
+INSERT INTO admins
+VALUES ('admin', 'admin') ON CONFLICT DO NOTHING;

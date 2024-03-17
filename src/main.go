@@ -118,7 +118,7 @@ func main() {
 	http.HandleFunc("/admin/findFilmsByActor", adminAuthenticate(findFilmByActorHandler))
 	http.HandleFunc("/admin/findFilmsBySubstring", adminAuthenticate(findFilmByNameHandler))
 
-	// нужна для добавления актеров в актерский состав фильма, если не было фильма, то сначала добавляет
+	// нужно для добавления актеров в актерский состав фильма, если не было фильма, то сначала добавляет
 	http.HandleFunc("/admin/addActorsToFilm", adminAuthenticate(addActorsToFilmHandler))
 
 	// user

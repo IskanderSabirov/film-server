@@ -14,16 +14,22 @@ const (
 func userAuthenticate(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, pass, _ := r.BasicAuth()
+		log.Printf("Got request with user rights login: '%s' and password: '%s'\n", user, pass)
 
 		password, err := dataBase.getUserPassword(user)
 		if err != nil {
+			log.Printf("Error in getting password of user\n")
+
 			w.Header().Set("WWW-Authenticate", `Basic realm="Restricted"`)
 			http.Error(w, "Server error in getting user`s password", http.StatusInternalServerError)
 		}
 
 		if pass == password {
+			log.Printf("Successfully authorized with login:'%s', password:'%s'\n", user, password)
 			next(w, r)
 		} else {
+			log.Printf("Error in password needed:'%s', got:'%s'\n", password, pass)
+
 			w.Header().Set("WWW-Authenticate", `Basic realm="Restricted"`)
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		}
@@ -34,15 +40,21 @@ func adminAuthenticate(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		admin, pass, _ := r.BasicAuth()
 
+		log.Printf("Got request with administrator rights login: '%s' and password: '%s'\n", admin, pass)
+
 		password, err := dataBase.getAdminPassword(admin)
 		if err != nil {
+			log.Printf("Error in getting password of admin\n")
+
 			w.Header().Set("WWW-Authenticate", `Basic realm="Restricted"`)
 			http.Error(w, "Server error in getting admin`s password", http.StatusInternalServerError)
 		}
 
 		if pass == password {
+			log.Printf("Successfully authorized with login:'%s', password:'%s'\n", admin, password)
 			next(w, r)
 		} else {
+			log.Printf("Error in password needed:'%s', got:'%s'\n", password, pass)
 			w.Header().Set("WWW-Authenticate", `Basic realm="Restricted"`)
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		}

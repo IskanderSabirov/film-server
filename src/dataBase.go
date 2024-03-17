@@ -3,11 +3,14 @@ package main
 import (
 	"database/sql"
 	_ "embed"
+	"errors"
 	"fmt"
 	"sort"
 	_ "sort"
 	"time"
 )
+
+//TODO добавить везде логи
 
 type LocalStorage interface {
 	addFilm(film Film) (int64, error)
@@ -102,47 +105,40 @@ func (d *DataBase) addActor(actor Actor) (int64, error) {
 }
 
 func (d *DataBase) deleteFilm(film Film) error {
-	query := fmt.Sprintf("SELECT film_id FROM %s WHERE film_name = $1 AND presentation = $2", d.Names.Films)
-	row := d.DB.QueryRow(query, film.name, film.presentation)
 
-	// получаем id фильма
-	var filmId int64
-	if err := row.Scan(&filmId); err != nil {
+	filmId, err := d.getFilmID(film)
+	if err != nil {
 		return err
 	}
 
 	// удаляем из таблицы фильм
-	query = fmt.Sprintf("DELETE FROM %s WHERE film_name = $1 AND presentation = $2", d.Names.Films)
+	query := fmt.Sprintf("DELETE FROM %s WHERE film_name = $1 AND presentation = $2", d.Names.Films)
 	if _, err := d.DB.Exec(query, film.name, film.description); err != nil {
 		return err
 	}
 
 	// удаялем из смежной таблицы актеров и фильмов
 	query = fmt.Sprintf("DELETE FROM %s WHERE film_id = $1", d.Names.FilmsActors)
-	_, err := d.DB.Exec(query, filmId)
+	_, err = d.DB.Exec(query, filmId)
 
 	return err
 }
 
 func (d *DataBase) deleteActor(actor Actor) error {
-	query := fmt.Sprintf("SELECT actor_id FROM %s WHERE actor_name = $1 AND sex = $2 AND born = $3", d.Names.Actors)
-	row := d.DB.QueryRow(query, actor.name, actor.sex, actor.born)
-
-	// получаем id актера
-	var actorId int64
-	if err := row.Scan(&actorId); err != nil {
+	actorId, err := d.getActorID(actor)
+	if err != nil {
 		return err
 	}
 
 	// удаляем из таблицы актера
-	query = fmt.Sprintf("DELETE FROM %s WHERE actor_name = $1 AND sex = $2 AND born = $3", d.Names.Actors)
+	query := fmt.Sprintf("DELETE FROM %s WHERE actor_name = $1 AND sex = $2 AND born = $3", d.Names.Actors)
 	if _, err := d.DB.Exec(query, actor.name, actor.sex, actor.born); err != nil {
 		return err
 	}
 
 	// удаялем из смежной таблицы актеров и фильмов
 	query = fmt.Sprintf("DELETE FROM %s WHERE actor_id = $1", d.Names.FilmsActors)
-	_, err := d.DB.Exec(query, actorId)
+	_, err = d.DB.Exec(query, actorId)
 
 	return err
 }
@@ -389,8 +385,13 @@ func (d *DataBase) getActorID(actor Actor) (int64, error) {
 	row, err := d.DB.Query(query, actor.name, actor.sex, actor.born)
 
 	var id int64
-	if err = row.Scan(&id); err != nil {
-		return -1, err
+
+	if row.Next() {
+		if err := row.Scan(&id); err != nil {
+			return -1, err
+		}
+	} else {
+		return -1, errors.New("no rows found")
 	}
 
 	return id, err
@@ -401,8 +402,13 @@ func (d *DataBase) getFilmID(film Film) (int64, error) {
 	row, err := d.DB.Query(query, film.name, film.presentation)
 
 	var id int64
-	if err = row.Scan(&id); err != nil {
-		return -1, err
+
+	if row.Next() {
+		if err := row.Scan(&id); err != nil {
+			return -1, err
+		}
+	} else {
+		return -1, errors.New("no rows found")
 	}
 
 	return id, err
@@ -417,8 +423,12 @@ func (d *DataBase) getUserPassword(login string) (string, error) {
 
 	var password string
 
-	if err := row.Scan(&password); err != nil {
-		return "", err
+	if row.Next() {
+		if err := row.Scan(&password); err != nil {
+			return "", err
+		}
+	} else {
+		return "", errors.New("no rows found")
 	}
 
 	return password, nil
@@ -434,8 +444,12 @@ func (d *DataBase) getAdminPassword(login string) (string, error) {
 
 	var password string
 
-	if err := row.Scan(&password); err != nil {
-		return "", err
+	if row.Next() {
+		if err := row.Scan(&password); err != nil {
+			return "", err
+		}
+	} else {
+		return "", errors.New("no rows found")
 	}
 
 	return password, nil
