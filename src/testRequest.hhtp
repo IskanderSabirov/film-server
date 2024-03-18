@@ -1,0 +1,232 @@
+###
+POST http://localhost:8080/admin/addActor
+Authorization: Basic admin admin
+Content-Type: application/json
+
+{
+  "name": "John Smith",
+  "sex": true,
+  "born": "1999-01-01T00:00:00Z"
+}
+
+###
+GET http://localhost:8080/user/getActors
+Authorization: Basic user user
+Content-Type: application/json
+
+###
+GET http://localhost:8080//user/getFilms
+Authorization: Basic user user
+Content-Type: application/json
+
+{
+  "sort": "default"
+}
+
+
+
+###
+POST http://localhost:8080/admin/changeActor
+Authorization: Basic admin admin
+Content-Type: application/json
+
+{
+  "PrevName": "Johnoton Smith",
+  "PrevBorn": "1990-01-01T00:00:00Z",
+  "PrevSex": true,
+  "NameChanged": true,
+  "NewName": "Rayan Gosling",
+  "SexChanged": true,
+  "NewSex": false,
+  "BornChanged": false,
+  "newBorn": "2000-01-01T00:00:00Z"
+}
+
+###
+POST http://localhost:8080/admin/addActor
+Authorization: Basic admin admin
+Content-Type: application/json
+
+{
+  "name": "John Smith",
+  "sex": true,
+  "born": "1999-01-01T00:00:00Z"
+}
+
+
+###
+POST http://localhost:8080/admin/addFilm
+Authorization: Basic admin admin
+Content-Type: application/json
+
+{
+  "name": "Lord Of The Rings",
+  "description": "Some story about about closing Sunlight",
+  "presentation": "1800-01-01T00:00:00Z",
+  "rating": 10
+}
+
+###
+POST http://localhost:8080/admin/addFilm
+Authorization: Basic admin admin
+Content-Type: application/json
+
+{
+  "name": "Drive",
+  "description": "The story of the boy who lived or died at the end",
+  "presentation": "1998-01-01T00:00:00Z",
+  "rating": 10
+}
+
+
+###
+GET http://localhost:8080/user/findFilmsBySubstring
+Authorization: Basic user user
+Content-Type: application/json
+
+{
+  "substring": "Lord"
+}
+
+###
+POST http://localhost:8080/admin/addActorsToFilm
+Authorization: Basic admin admin
+Content-Type: application/json
+
+{
+  "film": {
+    "name": "Lord Of The Rings",
+    "description": "Some story about about closing Sunlight",
+    "presentation": "1800-01-01T00:00:00Z",
+    "rating": 10
+  },
+  "actors": [
+    {
+      "name": "Rayan Gosling",
+      "sex": false,
+      "born": "1990-01-01T00:00:00Z"
+    },
+    {
+      "name": "John Smith",
+      "sex": true,
+      "born": "1999-01-01T00:00:00Z"
+    }
+  ]
+}
+
+###
+POST http://localhost:8080/admin/addActorsToFilm
+Authorization: Basic admin admin
+Content-Type: application/json
+
+{
+  "film": {
+    "name": "Drive",
+    "description": "The story of the boy who lived or died at the end",
+    "presentation": "1998-01-01T00:00:00Z",
+    "rating": 10
+  },
+  "actors": [
+    {
+      "name": "Rayan Gosling",
+      "sex": false,
+      "born": "1990-01-01T00:00:00Z"
+    }
+  ]
+}
+
+
+###
+GET  http://localhost:8080/user/findFilmsByActor
+Authorization: Basic user user
+Content-Type: application/json
+
+{
+  "substring": "Gosling"
+}
+
+
+###
+GET  http://localhost:8080/user/findFilmsByActor
+Authorization: Basic user user
+Content-Type: application/json
+
+{
+  "substring": "Sm"
+}
+
+###
+GET  http://localhost:8080/user/getActors
+Authorization: Basic user user
+
+
+###
+GET  http://localhost:8080/user/getFilms
+Authorization: Basic user user
+
+{
+"sort" : "presentation"
+}
+
+###
+GET  http://localhost:8080/user/getFilms
+Authorization: Basic user user
+
+{
+"sort" : "name"
+}
+
+
+###
+POST http://localhost:8080/admin/addFilm
+Authorization: Basic admin admin
+Content-Type: application/json
+
+{
+  "name": "Lord Of The Rings 2",
+  "description": "Some story about about closing Sunlight. Part 2",
+  "presentation": "1800-01-01T00:00:00Z",
+  "rating": 8
+}
+
+###
+GET http://localhost:8080/user/getFilms
+Authorization: Basic user user
+
+{
+"sort" : "name"
+}
+
+
+###
+POST http://localhost:8080/admin/addActor
+Authorization: Basic admin admin
+Content-Type: application/json
+
+{
+  "name": "John Smith",
+  "sex": true,
+  "born": "1999-01-01T00:00:00Z"
+}
+
+
+###
+GET http://localhost:8080/user/getActors
+Authorization: Basic user user
+
+
+###
+POST http://localhost:8080/admin/deleteActor
+Authorization: Basic admin admin
+Content-Type: application/json
+
+{
+  "name": "John Smith",
+  "sex": true,
+  "born": "1999-01-01T00:00:00Z"
+}
+
+
+###
+GET http://localhost:8080/user/getActors
+Authorization: Basic user user

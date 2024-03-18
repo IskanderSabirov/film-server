@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"errors"
 	"fmt"
+	"log"
 	"sort"
 	_ "sort"
 	"time"
@@ -84,8 +85,11 @@ func (d *DataBase) addFilm(film Film) (int64, error) {
 		d.Names.Films)
 
 	if _, err := d.DB.Exec(query, film.Name, film.Description, film.Presentation, film.Rating); err != nil {
+		log.Println(err)
 		return -1, err
 	}
+
+	log.Printf("Succesfully added film %v to data base\n", film)
 
 	return d.getFilmID(film)
 }
@@ -98,8 +102,11 @@ func (d *DataBase) addActor(actor Actor) (int64, error) {
 		d.Names.Actors,
 	)
 	if _, err := d.DB.Exec(query, actor.Name, actor.Sex, actor.Born); err != nil {
+		log.Println(err)
 		return -1, err
 	}
+
+	log.Printf("Succesfully added actor %v to data base\n", actor)
 
 	return d.getActorID(actor)
 }
@@ -108,18 +115,26 @@ func (d *DataBase) deleteFilm(film Film) error {
 
 	filmId, err := d.getFilmID(film)
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 
 	// удаляем из таблицы фильм
-	query := fmt.Sprintf("DELETE FROM %s WHERE film_name = $1 AND presentation = $2", d.Names.Films)
+	query := fmt.Sprintf("DELETE FROM %s WHERE name = $1 AND presentation = $2", d.Names.Films)
 	if _, err := d.DB.Exec(query, film.Name, film.Description); err != nil {
+		log.Println(err)
 		return err
 	}
 
+	log.Printf("Succesfully deleted film %v from data base '%s'\n", film, d.Names.Films)
+
 	// удаялем из смежной таблицы актеров и фильмов
-	query = fmt.Sprintf("DELETE FROM %s WHERE film_id = $1", d.Names.FilmsActors)
+	query = fmt.Sprintf("DELETE FROM %s WHERE film = $1", d.Names.FilmsActors)
 	_, err = d.DB.Exec(query, filmId)
+
+	if err != nil {
+		log.Println(err)
+	}
 
 	return err
 }
@@ -127,18 +142,26 @@ func (d *DataBase) deleteFilm(film Film) error {
 func (d *DataBase) deleteActor(actor Actor) error {
 	actorId, err := d.getActorID(actor)
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 
 	// удаляем из таблицы актера
-	query := fmt.Sprintf("DELETE FROM %s WHERE actor_name = $1 AND sex = $2 AND born = $3", d.Names.Actors)
+	query := fmt.Sprintf("DELETE FROM %s WHERE name = $1 AND sex = $2 AND born = $3", d.Names.Actors)
 	if _, err := d.DB.Exec(query, actor.Name, actor.Sex, actor.Born); err != nil {
+		log.Println(err)
 		return err
 	}
 
+	log.Printf("Succesfully deleted actor %v from data base '%s'\n", actor, d.Names.Actors)
+
 	// удаялем из смежной таблицы актеров и фильмов
-	query = fmt.Sprintf("DELETE FROM %s WHERE actor_id = $1", d.Names.FilmsActors)
+	query = fmt.Sprintf("DELETE FROM %s WHERE actor = $1", d.Names.FilmsActors)
 	_, err = d.DB.Exec(query, actorId)
+
+	if err != nil {
+		log.Println(err)
+	}
 
 	return err
 }
@@ -146,6 +169,7 @@ func (d *DataBase) deleteActor(actor Actor) error {
 func (d *DataBase) changeFilm(film changedFilm) error {
 	filmID, err := d.getFilmID(Film{film.PrevName, "", film.PrevPresentation, 0})
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 
@@ -155,26 +179,34 @@ func (d *DataBase) changeFilm(film changedFilm) error {
 
 	if film.NameChanged {
 		if _, err := d.DB.Exec(fmt.Sprintf(query, d.Names.Films, "name", d.Names.Films, filmID), film.NewName); err != nil {
+			log.Println(err)
 			return err
 		}
+		log.Printf("Succesfully changed film`s name (id=%d) to %s\n", filmID, film.NewName)
 	}
 
 	if film.PresentationChanged {
 		if _, err := d.DB.Exec(fmt.Sprintf(query, d.Names.Films, "presentation", d.Names.Films, filmID), film.NewPresentation); err != nil {
+			log.Println(err)
 			return err
 		}
+		log.Printf("Succesfully changed film`s presentation (id=%d) to %v\n", filmID, film.NewPresentation)
 	}
 
 	if film.DescriptionChanged {
 		if _, err := d.DB.Exec(fmt.Sprintf(query, d.Names.Films, "description", d.Names.Films, filmID), film.NewDescription); err != nil {
+			log.Println(err)
 			return err
 		}
+		log.Printf("Succesfully changed film`s description (id=%d) to %s\n", filmID, film.NewDescription)
 	}
 
 	if film.RatingChanged {
 		if _, err := d.DB.Exec(fmt.Sprintf(query, d.Names.Films, "rating", d.Names.Films, filmID), film.NewRating); err != nil {
+			log.Println(err)
 			return err
 		}
+		log.Printf("Succesfully changed film`s reating (id=%d) to %d\n", filmID, film.NewRating)
 	}
 
 	return nil
@@ -183,6 +215,7 @@ func (d *DataBase) changeFilm(film changedFilm) error {
 func (d *DataBase) changeActor(actor changedActor) error {
 	actorID, err := d.getActorID(Actor{actor.PrevName, actor.PrevSex, actor.PrevBorn})
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 
@@ -192,20 +225,26 @@ func (d *DataBase) changeActor(actor changedActor) error {
 
 	if actor.BornChanged {
 		if _, err := d.DB.Exec(fmt.Sprintf(query, d.Names.Actors, "born", d.Names.Actors, actorID), actor.NewBorn); err != nil {
+			log.Println(err)
 			return err
 		}
+		log.Printf("Succesfully changed actor`s born (id=%d) to %v\n", actorID, actor.NewBorn)
 	}
 
 	if actor.SexChanged {
 		if _, err := d.DB.Exec(fmt.Sprintf(query, d.Names.Actors, "sex", d.Names.Actors, actorID), actor.NewSex); err != nil {
+			log.Println(err)
 			return err
 		}
+		log.Printf("Succesfully changed actor`s sex (id=%d) to %v\n", actorID, actor.NewSex)
 	}
 
 	if actor.NameChanged {
 		if _, err := d.DB.Exec(fmt.Sprintf(query, d.Names.Actors, "name", d.Names.Actors, actorID), actor.NewName); err != nil {
+			log.Println(err)
 			return err
 		}
+		log.Printf("Succesfully changed actor`s name (id=%d) to %v\n", actorID, actor.NewName)
 	}
 
 	return nil
@@ -215,15 +254,18 @@ func (d *DataBase) getFilms(sortParam string) ([]Film, error) {
 	query := fmt.Sprintf(`SELECT * FROM %s`, d.Names.Films)
 	rows, err := d.DB.Query(query)
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 	var films []Film
 	var name, description string
 	var rating int
 	var presentation time.Time
+	var ind int64
 
 	for rows.Next() {
-		if err := rows.Scan(&name, &description, &presentation, rating); err != nil {
+		if err := rows.Scan(&ind, &name, &description, &presentation, &rating); err != nil {
+			log.Println(err)
 			return nil, err
 		}
 		film := Film{name, description, presentation, rating}
@@ -247,6 +289,8 @@ func (d *DataBase) getFilms(sortParam string) ([]Film, error) {
 		})
 	}
 
+	log.Printf("Succesfully got films list sorted by %s\n", sortParam)
+
 	return films, nil
 }
 
@@ -258,6 +302,7 @@ func (d *DataBase) getActors() (map[Actor][]Film, error) {
 
 	rows, err := d.DB.Query(query)
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 
@@ -272,6 +317,7 @@ func (d *DataBase) getActors() (map[Actor][]Film, error) {
 
 	for rows.Next() {
 		if err := rows.Scan(&actorName, &actorSex, &actorBorn, &filmName, &filmDescription, &filmPresentation, &filmRating); err != nil {
+			log.Println(err)
 			return nil, err
 		}
 		actor := Actor{actorName, actorSex, actorBorn}
@@ -303,6 +349,7 @@ func (d *DataBase) findFilmsByName(nameFragment string) ([]Film, error) {
 
 	rows, err := d.DB.Query(query, nameFragment)
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 
@@ -310,9 +357,11 @@ func (d *DataBase) findFilmsByName(nameFragment string) ([]Film, error) {
 	var name, description string
 	var rating int
 	var presentation time.Time
+	var ind int64
 
 	for rows.Next() {
-		if err := rows.Scan(&name, &description, &presentation, rating); err != nil {
+		if err := rows.Scan(&ind, &name, &description, &presentation, &rating); err != nil {
+			log.Println(err)
 			return nil, err
 		}
 		film := Film{name, description, presentation, rating}
@@ -333,6 +382,7 @@ func (d *DataBase) findFilmsByActor(nameFragment string) ([]Film, error) {
 
 	rows, err := d.DB.Query(query, nameFragment)
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 
@@ -342,7 +392,8 @@ func (d *DataBase) findFilmsByActor(nameFragment string) ([]Film, error) {
 	var rating int
 
 	for rows.Next() {
-		if err := rows.Scan(&name, &description, &presentation, rating); err != nil {
+		if err := rows.Scan(&name, &description, &presentation, &rating); err != nil {
+			log.Println(err)
 			return nil, err
 		}
 		film := Film{name, description, presentation, rating}
@@ -357,11 +408,13 @@ func (d *DataBase) addActorsToFilm(actors []Actor, film Film) error {
 
 	filmID, err := d.addFilm(film)
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 	for _, actor := range actors {
 		actorID, err := d.addActor(actor)
 		if err != nil {
+			log.Println(err)
 			return err
 		}
 
@@ -372,6 +425,7 @@ func (d *DataBase) addActorsToFilm(actors []Actor, film Film) error {
 			d.Names.FilmsActors,
 		)
 		if _, err = d.DB.Exec(query, actorID, filmID); err != nil {
+			log.Println(err)
 			return err
 		}
 
@@ -383,14 +437,20 @@ func (d *DataBase) addActorsToFilm(actors []Actor, film Film) error {
 func (d *DataBase) getActorID(actor Actor) (int64, error) {
 	query := fmt.Sprintf(`SELECT id FROM %s WHERE name=$1 AND sex=$2 AND born=$3`, d.Names.Actors)
 	row, err := d.DB.Query(query, actor.Name, actor.Sex, actor.Born)
+	if err != nil {
+		log.Println(err)
+		return -1, err
+	}
 
 	var id int64
 
 	if row.Next() {
 		if err := row.Scan(&id); err != nil {
+			log.Println(err)
 			return -1, err
 		}
 	} else {
+		log.Println("no rows found")
 		return -1, errors.New("no rows found")
 	}
 
@@ -400,14 +460,20 @@ func (d *DataBase) getActorID(actor Actor) (int64, error) {
 func (d *DataBase) getFilmID(film Film) (int64, error) {
 	query := fmt.Sprintf(`SELECT id FROM %s WHERE name=$1 AND presentation=$2;`, d.Names.Films)
 	row, err := d.DB.Query(query, film.Name, film.Presentation)
+	if err != nil {
+		log.Println(err)
+		return -1, err
+	}
 
 	var id int64
 
 	if row.Next() {
 		if err := row.Scan(&id); err != nil {
+			log.Println(err)
 			return -1, err
 		}
 	} else {
+		log.Println("no rows found")
 		return -1, errors.New("no rows found")
 	}
 
@@ -418,6 +484,7 @@ func (d *DataBase) getUserPassword(login string) (string, error) {
 	query := fmt.Sprintf(`SELECT password FROM %s WHERE login = $1;`, d.Names.Users)
 	row, err := d.DB.Query(query, login)
 	if err != nil {
+		log.Println(err)
 		return "", nil
 	}
 
@@ -425,9 +492,11 @@ func (d *DataBase) getUserPassword(login string) (string, error) {
 
 	if row.Next() {
 		if err := row.Scan(&password); err != nil {
+			log.Println(err)
 			return "", err
 		}
 	} else {
+		log.Println("no rows found")
 		return "", errors.New("no rows found")
 	}
 
@@ -439,6 +508,7 @@ func (d *DataBase) getAdminPassword(login string) (string, error) {
 	query := fmt.Sprintf(`SELECT password FROM %s WHERE login = $1;`, d.Names.Admins)
 	row, err := d.DB.Query(query, login)
 	if err != nil {
+		log.Println(err)
 		return "", nil
 	}
 
@@ -446,9 +516,11 @@ func (d *DataBase) getAdminPassword(login string) (string, error) {
 
 	if row.Next() {
 		if err := row.Scan(&password); err != nil {
+			log.Println(err)
 			return "", err
 		}
 	} else {
+		log.Println("no rows found")
 		return "", errors.New("no rows found")
 	}
 
