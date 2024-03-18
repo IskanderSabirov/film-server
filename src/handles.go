@@ -11,7 +11,7 @@ const (
 	writingAnswerError string = "Writing answer error, all data added to system"
 )
 
-type ActorFilms struct {
+type FilmsOfActor struct {
 	Actor Actor  `json:"actor"`
 	Films []Film `json:"films"`
 }
@@ -103,7 +103,7 @@ func changeActorHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var changeActor changedActor
+	var changeActor ChangedActor
 
 	err := json.NewDecoder(r.Body).Decode(&changeActor)
 	if err != nil {
@@ -200,7 +200,7 @@ func changeFilmHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var changeFilm changedFilm
+	var changeFilm ChangedFilm
 
 	err := json.NewDecoder(r.Body).Decode(&changeFilm)
 	if err != nil {
@@ -266,7 +266,7 @@ func getFilmsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var sortStyle sortFilms
+	var sortStyle SortFilmsParameter
 
 	err := json.NewDecoder(r.Body).Decode(&sortStyle)
 	if err != nil {
@@ -311,7 +311,7 @@ func findFilmByNameHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var substring findSubstring
+	var substring SubstringToFind
 
 	err := json.NewDecoder(r.Body).Decode(&substring)
 	if err != nil {
@@ -355,7 +355,7 @@ func findFilmByActorHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var substring findSubstring
+	var substring SubstringToFind
 
 	err := json.NewDecoder(r.Body).Decode(&substring)
 	if err != nil {
@@ -407,10 +407,10 @@ func getActorsHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Correct receiving actors list from data base\n")
 
-	data := make([]ActorFilms, 0)
+	data := make([]FilmsOfActor, 0)
 
 	for actor, films := range actors {
-		actorFilms := ActorFilms{
+		actorFilms := FilmsOfActor{
 			Actor: actor,
 			Films: films,
 		}
@@ -440,7 +440,7 @@ func addActorsToFilmHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var adding addActorsToFilm
+	var adding ActorsOfFilm
 
 	err := json.NewDecoder(r.Body).Decode(&adding)
 	if err != nil {

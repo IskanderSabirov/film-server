@@ -1,0 +1,554 @@
+swagger: '2.0'
+info:
+  title: My API
+  description: API Documentation
+  version: 1.0.0
+basePath: /api
+schemes:
+  - http
+  - https
+securityDefinitions:
+  user_auth:
+    type: apiKey
+    name: Authorization
+    in: header
+  admin_auth:
+    type: apiKey
+    name: Authorization
+    in: header
+paths:
+  /admin/addActor:
+    post:
+      summary: Add an actor to system (admin only)
+      security:
+        - admin_auth: [ ]
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              actor:
+                $ref: '#/definitions/Actor'
+            required:
+              - actor
+      responses:
+        '200':
+          description: OK, successfully added
+        '400':
+          description: Bad Request
+        '405':
+          description: Method not allowed
+        '500':
+          description: Internal Server Error
+
+  /admin/changeActor:
+    post:
+      summary: Change an actor`s information (admin only)
+      security:
+        - admin_auth: [ ]
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              actor:
+                $ref: '#/definitions/changedActor'
+            required:
+              - actor
+      responses:
+        '200':
+          description: OK, successfully changed
+        '400':
+          description: Bad Request
+        '405':
+          description: Method not allowed
+        '500':
+          description: Internal Server Error
+
+  /admin/deleteActor:
+    post:
+      summary: Delete an actor from system (admin only)
+      security:
+        - admin_auth: [ ]
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              actor:
+                $ref: '#/definitions/Actor'
+            required:
+              - actor
+      responses:
+        '200':
+          description: OK, actor successfully deleted
+        '400':
+          description: Bad Request
+        '405':
+          description: Method not allowed
+        '500':
+          description: Internal Server Error
+
+  /admin/addFilm:
+    post:
+      summary: Add a film to system (admin only)
+      security:
+        - admin_auth: [ ]
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              film:
+                $ref: '#/definitions/Film'
+            required:
+              - film
+      responses:
+        '200':
+          description: OK, film successfully added
+        '400':
+          description: Bad Request
+        '405':
+          description: Method not allowed
+        '500':
+          description: Internal Server Error
+
+  /admin/changeFilm:
+    post:
+      summary: Change an film`s information (admin only)
+      security:
+        - admin_auth: [ ]
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              film:
+                $ref: '#/definitions/changedFilm'
+            required:
+              - film
+      responses:
+        '200':
+          description: OK, film`s information successfully changed
+        '400':
+          description: Bad Request
+        '405':
+          description: Method not allowed
+        '500':
+          description: Internal Server Error
+
+  /admin/deleteFilm:
+    post:
+      summary: Delete an film from system (admin only)
+      security:
+        - admin_auth: [ ]
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              film:
+                $ref: '#/definitions/Film'
+            required:
+              - film
+      responses:
+        '200':
+          description: OK, film successfully deleted
+        '400':
+          description: Bad Request
+        '405':
+          description: Method not allowed
+        '500':
+          description: Internal Server Error
+
+
+  /admin/getFilms:
+    get:
+      summary: Get all films, which can be sorted by name, rating, date
+      security:
+        - admin_auth: [ ]
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              sortParameter:
+                $ref: '#/definitions/sortFilms'
+            required:
+              - sortParameter
+      responses:
+        200:
+          description: Successfully request
+          schema:
+            type: object
+            properties:
+              films:
+                type: array
+                items:
+                  $ref: '#/definitions/Film'
+        '400':
+          description: Bad Request
+        '405':
+          description: Method not allowed
+        '500':
+          description: Internal Server Error
+
+  /admin/getActors:
+    get:
+      summary: Get all actors with their films
+      security:
+        - admin_auth: [ ]
+      responses:
+        200:
+          description: Successfully request
+          schema:
+            type: object
+            properties:
+              films:
+                type: array
+                items:
+                  $ref: '#/definitions/filmsOfActor'
+        '400':
+          description: Bad Request
+        '405':
+          description: Method not allowed
+        '500':
+          description: Internal Server Error
+
+
+  /admin/findFilmsByActor:
+    get:
+      summary: Get all films, where actor has this substring in name
+      security:
+        - admin_auth: [ ]
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              substring:
+                $ref: '#/definitions/findSubstring'
+            required:
+              - substring
+      responses:
+        200:
+          description: Successfully request
+          schema:
+            type: object
+            properties:
+              films:
+                type: array
+                items:
+                  $ref: '#/definitions/Film'
+        '400':
+          description: Bad Request
+        '405':
+          description: Method not allowed
+        '500':
+          description: Internal Server Error
+
+
+  /admin/findFilmsBySubstring:
+    get:
+      summary: Get all films, where name has this substring
+      security:
+        - admin_auth: [ ]
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              substring:
+                $ref: '#/definitions/findSubstring'
+            required:
+              - substring
+      responses:
+        200:
+          description: Successfully request
+          schema:
+            type: object
+            properties:
+              films:
+                type: array
+                items:
+                  $ref: '#/definitions/Film'
+        '400':
+          description: Bad Request
+        '405':
+          description: Method not allowed
+        '500':
+          description: Internal Server Error
+
+
+  /admin/addActorsToFilm:
+    post:
+      summary: Add actors to a film (admin only)
+      security:
+        - admin_auth: [ ]
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              actors:
+                $ref: '#/definitions/actorsOfFilm'
+            required:
+              - actors
+      responses:
+        '200':
+          description: Successfully request
+        '400':
+          description: Bad Request
+        '405':
+          description: Method not allowed
+        '500':
+          description: Internal Server Error
+
+  /user/getFilms:
+    get:
+      summary: Get all films, which can be sorted by name, rating, date
+      security:
+        - admin_auth: [ ]
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              sortParameter:
+                $ref: '#/definitions/sortFilms'
+            required:
+              - sortParameter
+      responses:
+        200:
+          description: Successfully request
+          schema:
+            type: object
+            properties:
+              films:
+                type: array
+                items:
+                  $ref: '#/definitions/Film'
+        '400':
+          description: Bad Request
+        '405':
+          description: Method not allowed
+        '500':
+          description: Internal Server Error
+
+
+  /user/getActors:
+    get:
+      summary: Get all actors with their films
+      security:
+        - admin_auth: [ ]
+      responses:
+        200:
+          description: Successfully request
+          schema:
+            type: object
+            properties:
+              films:
+                type: array
+                items:
+                  $ref: '#/definitions/filmsOfActor'
+        '400':
+          description: Bad Request
+        '405':
+          description: Method not allowed
+        '500':
+          description: Internal Server Error
+
+  /user/findFilmsBySubstring:
+    get:
+      summary: Get all films, where name has this substring
+      security:
+        - admin_auth: [ ]
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              substring:
+                $ref: '#/definitions/findSubstring'
+            required:
+              - substring
+      responses:
+        200:
+          description: Successfully request
+          schema:
+            type: object
+            properties:
+              films:
+                type: array
+                items:
+                  $ref: '#/definitions/Film'
+        '400':
+          description: Bad Request
+        '405':
+          description: Method not allowed
+        '500':
+          description: Internal Server Error
+
+  /user/findFilmsByActor:
+    get:
+      summary: Get all films, where actor has this substring in name
+      security:
+        - admin_auth: [ ]
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              substring:
+                $ref: '#/definitions/findSubstring'
+            required:
+              - substring
+      responses:
+        200:
+          description: Successfully request
+          schema:
+            type: object
+            properties:
+              films:
+                type: array
+                items:
+                  $ref: '#/definitions/Film'
+        '400':
+          description: Bad Request
+        '405':
+          description: Method not allowed
+        '500':
+          description: Internal Server Error
+
+definitions:
+  Actor:
+    type: object
+    properties:
+      name:
+        type: string
+      sex:
+        type: boolean
+      born:
+        type: string
+        format: time
+
+  Film:
+    type: object
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+      presentation:
+        type: string
+        format: time
+      rating:
+        type: integer
+
+  changedActor:
+    type: object
+    properties:
+      prevName:
+        type: string
+      prevBorn:
+        type: string
+        format: time
+      prevSex:
+        type: boolean
+      nameChanged:
+        type: boolean
+      newName:
+        type: string
+      sexChanged:
+        type: boolean
+      newSex:
+        type: boolean
+      bornChanged:
+        type: boolean
+      newBorn:
+        type: string
+        format: time
+
+  changedFilm:
+    type: object
+    properties:
+      prevName:
+        type: string
+      prevPresentation:
+        type: string
+        format: time
+      nameChanged:
+        type: boolean
+      newName:
+        type: string
+      descriptionChanged:
+        type: boolean
+      newDescription:
+        type: string
+      presentationChanged:
+        type: boolean
+      newPresentation:
+        type: string
+        format: time
+      ratingChanged:
+        type: boolean
+      newRating:
+        type: string
+
+  sortFilms:
+    type: object
+    properties:
+      sort:
+        type: string
+
+  findSubstring:
+    type: object
+    properties:
+      substring:
+        type: string
+
+  actorsOfFilm:
+    type: object
+    properties:
+      film:
+        $ref: '#/definitions/Film'
+      actors:
+        type: array
+        items:
+          $ref: '#/definitions/Actor'
+
+  filmsOfActor:
+    type: object
+    properties:
+      actor:
+        $ref: '#/definitions/Actor'
+      films:
+        type: array
+        items:
+          $ref: '#/definitions/Film'

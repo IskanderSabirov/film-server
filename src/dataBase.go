@@ -11,8 +11,6 @@ import (
 	"time"
 )
 
-//TODO добавить везде логи
-
 type LocalStorage interface {
 	addFilm(film Film) (int64, error)
 	addActor(actor Actor) (int64, error)
@@ -20,8 +18,8 @@ type LocalStorage interface {
 	deleteFilm(film Film) error
 	deleteActor(actor Actor) error
 
-	changeFilm(updateFilm changedFilm) error
-	changeActor(updateActor changedActor) error
+	changeFilm(updateFilm ChangedFilm) error
+	changeActor(updateActor ChangedActor) error
 
 	getFilms(sort string) ([]Film, error)
 	getActors() (map[Actor][]Film, error)
@@ -166,7 +164,7 @@ func (d *DataBase) deleteActor(actor Actor) error {
 	return err
 }
 
-func (d *DataBase) changeFilm(film changedFilm) error {
+func (d *DataBase) changeFilm(film ChangedFilm) error {
 	filmID, err := d.getFilmID(Film{film.PrevName, "", film.PrevPresentation, 0})
 	if err != nil {
 		log.Println(err)
@@ -212,7 +210,7 @@ func (d *DataBase) changeFilm(film changedFilm) error {
 	return nil
 }
 
-func (d *DataBase) changeActor(actor changedActor) error {
+func (d *DataBase) changeActor(actor ChangedActor) error {
 	actorID, err := d.getActorID(Actor{actor.PrevName, actor.PrevSex, actor.PrevBorn})
 	if err != nil {
 		log.Println(err)

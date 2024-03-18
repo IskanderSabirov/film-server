@@ -44,7 +44,7 @@ type Film struct {
 	Rating       int       `json:"rating"`
 }
 
-type changedActor struct {
+type ChangedActor struct {
 	PrevName    string    `json:"prevName"`
 	PrevBorn    time.Time `json:"prevBorn"`
 	PrevSex     bool      `json:"prevSex"`
@@ -56,7 +56,7 @@ type changedActor struct {
 	NewBorn     time.Time `json:"newBorn"`
 }
 
-type changedFilm struct {
+type ChangedFilm struct {
 	PrevName            string    `json:"prevName"`
 	PrevPresentation    time.Time `json:"prevPresentation"`
 	NameChanged         bool      `json:"nameChanged"`
@@ -69,14 +69,14 @@ type changedFilm struct {
 	NewRating           int       `json:"newRating"`
 }
 
-type sortFilms struct {
+type SortFilmsParameter struct {
 	Sort string `json:"sort"`
 }
 
-type findSubstring struct {
+type SubstringToFind struct {
 	Substring string `json:"substring"`
 }
-type addActorsToFilm struct {
+type ActorsOfFilm struct {
 	Film   Film    `json:"film"`
 	Actors []Actor `json:"actors"`
 }
@@ -118,7 +118,7 @@ func main() {
 	http.HandleFunc("/admin/findFilmsByActor", adminAuthenticate(findFilmByActorHandler))
 	http.HandleFunc("/admin/findFilmsBySubstring", adminAuthenticate(findFilmByNameHandler))
 
-	// нужно для добавления актеров в актерский состав фильма, если не было фильма, то сначала добавляет
+	// нужно для добавления актеров в актерский состав фильма, если не было фильма, то сначала добавляет его
 	http.HandleFunc("/admin/addActorsToFilm", adminAuthenticate(addActorsToFilmHandler))
 
 	// user
@@ -146,7 +146,7 @@ func checkFilm(film Film) bool {
 	return checkFilmName(film.Name) && checkFilmDescription(film.Description) && checkFilmRating(film.Rating)
 }
 
-func checkChangedFilm(film changedFilm) bool {
+func checkChangedFilm(film ChangedFilm) bool {
 	// по сути каждая скобка это -> (булево следсвтие, если первое верно, то должно быть и второе)
 	return (!film.RatingChanged || checkFilmRating(film.NewRating)) &&
 		(!film.NameChanged || checkFilmName(film.NewName)) &&

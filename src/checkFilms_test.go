@@ -104,10 +104,10 @@ func TestCheckChangedFilm(t *testing.T) {
 	biggerThanMaximaDescr := string(strBiggerMaximalDescr[:])
 
 	testCases := []struct {
-		film     changedFilm
+		film     ChangedFilm
 		expected bool
 	}{
-		{changedFilm{
+		{ChangedFilm{
 			NameChanged:   true,
 			NewName:       "The Hobbit",
 			RatingChanged: true,
@@ -115,7 +115,7 @@ func TestCheckChangedFilm(t *testing.T) {
 			PrevName:      "The Lord of the Rings"},
 			true},
 		//пустое имя
-		{changedFilm{
+		{ChangedFilm{
 			NameChanged:   false,
 			NewName:       "",
 			RatingChanged: true,
@@ -123,7 +123,7 @@ func TestCheckChangedFilm(t *testing.T) {
 			PrevName:      "The Lord of the Rings"},
 			true},
 		//некорректный рейтинг
-		{changedFilm{
+		{ChangedFilm{
 			NameChanged:   true,
 			NewName:       "The Hobbit",
 			RatingChanged: true,
@@ -131,7 +131,7 @@ func TestCheckChangedFilm(t *testing.T) {
 			PrevName:      "The Lord of the Rings"},
 			false},
 
-		{changedFilm{
+		{ChangedFilm{
 			NameChanged:   true,
 			NewName:       "The Hobbit",
 			RatingChanged: true,
@@ -139,7 +139,7 @@ func TestCheckChangedFilm(t *testing.T) {
 			PrevName:      "The Lord of the Rings"},
 			true},
 		// пустое новое название
-		{changedFilm{
+		{ChangedFilm{
 			NameChanged:   true,
 			NewName:       "",
 			RatingChanged: false,
@@ -147,7 +147,7 @@ func TestCheckChangedFilm(t *testing.T) {
 			PrevName:      "The Lord of the Rings"},
 			false},
 		// большое название
-		{changedFilm{
+		{ChangedFilm{
 			NameChanged:   true,
 			NewName:       biggerThanMaximalName,
 			RatingChanged: false,
@@ -155,7 +155,7 @@ func TestCheckChangedFilm(t *testing.T) {
 			PrevName:      "The Lord of the Rings"},
 			false},
 		// новое большое описание
-		{changedFilm{
+		{ChangedFilm{
 			NameChanged:        true,
 			NewName:            "Hobbit",
 			RatingChanged:      false,
@@ -165,7 +165,7 @@ func TestCheckChangedFilm(t *testing.T) {
 			NewDescription:     biggerThanMaximaDescr},
 			false},
 		//не новое большое описание
-		{changedFilm{
+		{ChangedFilm{
 			NameChanged:        true,
 			NewName:            "Hobbit",
 			RatingChanged:      false,
