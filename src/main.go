@@ -62,7 +62,7 @@ type changedFilm struct {
 	NameChanged         bool      `json:"nameChanged"`
 	NewName             string    `json:"newName"`
 	DescriptionChanged  bool      `json:"descriptionChanged"`
-	NewDescription      bool      `json:"newDescription"`
+	NewDescription      string    `json:"newDescription"`
 	PresentationChanged bool      `json:"presentationChanged"`
 	NewPresentation     time.Time `json:"newPresentation"`
 	RatingChanged       bool      `json:"ratingChanged"`
@@ -150,6 +150,6 @@ func checkChangedFilm(film changedFilm) bool {
 	// по сути каждая скобка это -> (булево следсвтие, если первое верно, то должно быть и второе)
 	return (!film.RatingChanged || checkFilmRating(film.NewRating)) &&
 		(!film.NameChanged || checkFilmName(film.NewName)) &&
-		(!film.RatingChanged || checkFilmRating(film.NewRating)) &&
+		(!film.DescriptionChanged || checkFilmDescription(film.NewDescription)) &&
 		checkFilmName(film.PrevName)
 }
