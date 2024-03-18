@@ -381,7 +381,7 @@ func (d *DataBase) addActorsToFilm(actors []Actor, film Film) error {
 }
 
 func (d *DataBase) getActorID(actor Actor) (int64, error) {
-	query := fmt.Sprintf(`SELECT id FROM %s WHERE name=$1, sex=$2, born=$3`, d.Names.Actors)
+	query := fmt.Sprintf(`SELECT id FROM %s WHERE name=$1 AND sex=$2 AND born=$3`, d.Names.Actors)
 	row, err := d.DB.Query(query, actor.Name, actor.Sex, actor.Born)
 
 	var id int64
@@ -398,7 +398,7 @@ func (d *DataBase) getActorID(actor Actor) (int64, error) {
 }
 
 func (d *DataBase) getFilmID(film Film) (int64, error) {
-	query := fmt.Sprintf(`SELECT id FROM %s WHERE name=$1, presentation=$2;`, d.Names.Films)
+	query := fmt.Sprintf(`SELECT id FROM %s WHERE name=$1 AND presentation=$2;`, d.Names.Films)
 	row, err := d.DB.Query(query, film.Name, film.Presentation)
 
 	var id int64

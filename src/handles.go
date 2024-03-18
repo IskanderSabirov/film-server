@@ -11,6 +11,11 @@ const (
 	writingAnswerError string = "Writing answer error, all data added to system"
 )
 
+type ActorFilms struct {
+	Actor Actor  `json:"actor"`
+	Films []Film `json:"films"`
+}
+
 func userAuthenticate(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		user, pass, _ := r.BasicAuth()
@@ -277,6 +282,10 @@ func getFilmsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if films == nil {
+		films = []Film{}
+	}
+
 	log.Printf("Correct receiving films list from data base\n")
 
 	jsonData, err := json.Marshal(films)
@@ -318,6 +327,12 @@ func findFilmByNameHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	log.Printf("Correct getting films by films`s name substring: %s\n", substring.Substring)
+
+	if films == nil {
+		films = []Film{}
+	}
+
 	jsonData, err := json.Marshal(films)
 	if err != nil {
 		http.Error(w, "Server error in encoding films to json", http.StatusInternalServerError)
@@ -356,6 +371,10 @@ func findFilmByActorHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if films == nil {
+		films = []Film{}
+	}
+
 	log.Printf("Correct getting films by actor`s name substring\n")
 
 	jsonData, err := json.Marshal(films)
@@ -388,8 +407,19 @@ func getActorsHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Correct receiving actors list from data base\n")
 
-	jsonData, err := json.Marshal(actors)
+	data := make([]ActorFilms, 0)
+
+	for actor, films := range actors {
+		actorFilms := ActorFilms{
+			Actor: actor,
+			Films: films,
+		}
+		data = append(data, actorFilms)
+	}
+
+	jsonData, err := json.Marshal(data)
 	if err != nil {
+		log.Printf("Error: %s", err.Error())
 		http.Error(w, "Server error in encoding actors list to json", http.StatusInternalServerError)
 		return
 	}

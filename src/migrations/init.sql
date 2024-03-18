@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS admins
     password TEXT
 );
 
--- для пользования и чтобы ручками не вбивать, как написано в ТЗ
+-- для пользования/тестирования и чтобы ручками не вбивать, как написано в ТЗ
 INSERT INTO users
 VALUES ('user', 'user') ON CONFLICT DO NOTHING ;
 
